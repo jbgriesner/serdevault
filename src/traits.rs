@@ -32,7 +32,7 @@ pub trait SafeSerde: Serialize + for<'de> Deserialize<'de> + Sized {
     }
 }
 
-fn expand_tilde(path: &str) -> PathBuf {
+pub fn expand_tilde(path: &str) -> PathBuf {
     if path.starts_with("~/") {
         let home = env::var("HOME").map(PathBuf::from).unwrap_or_default();
         home.join(&path[2..])
