@@ -4,4 +4,4 @@ mod errors;
 pub mod serialize;
 pub mod traits;
 
-use errors::SerdeVaultError;
+pub use errors::SerdeVaultError;
