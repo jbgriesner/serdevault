@@ -1,7 +1,5 @@
-// examples/config.rs
 use serde::{Deserialize, Serialize};
-use serdevault::serialize::impls::json::JsonSerialized;
-use serdevault::traits::SafeSerde;
+use serdevault::VaultFile;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct AppConfig {
@@ -11,13 +9,7 @@ struct AppConfig {
     features: Vec<String>,
 }
 
-impl SafeSerde for AppConfig {
-    type S = JsonSerialized<AppConfig>;
-    const VAULT_PATH: &'static str = "~/.fp.crypted";
-}
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create a config
     let config = AppConfig {
         api_key: "secret_key_12345".to_string(),
         server_url: "https://api.example.com".to_string(),
@@ -29,17 +21,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ],
     };
 
-    // Save it encrypted - will prompt for password
-    config.save("toto")?;
-    println!("Config saved successfully!");
+    let vault = VaultFile::open("~/toto.vault", "correct-horse-battery");
 
-    // Later, load it back - will prompt for password
-    let loaded_config: AppConfig = AppConfig::load("toto")?;
-    println!("Loaded config: {:?}", loaded_config);
+    vault.save(&config)?;
+    println!("Saved successfully.");
 
-    // Should failed
-    let loaded_config: AppConfig = AppConfig::load("ttytyty")?;
-    println!("Loaded config: {:?}", loaded_config);
+    let loaded: AppConfig = vault.load()?;
+    println!("Loaded: {loaded:?}");
+
+    let wrong = VaultFile::open("~/toto.vault", "wrong_password");
+    match wrong.load::<AppConfig>() {
+        Err(e) => println!("Expected error: {e}"),
+        Ok(_) => println!("This should never print"),
+    }
 
     Ok(())
 }

@@ -1,7 +1,8 @@
-mod consts;
-mod encrypter;
-mod errors;
-pub mod serialize;
-pub mod traits;
+mod crypto;
+mod format;
 
-pub use errors::SerdeVaultError;
+pub mod error;
+pub mod vault;
+
+pub use error::SerdeVaultError;
+pub use vault::VaultFile;
